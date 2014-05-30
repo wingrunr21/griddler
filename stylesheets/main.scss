@@ -97,8 +97,8 @@ nav {
       font-weight: 800;
       line-height: 2.8em;
       height: 3em;
+      max-width: 18em;
       outline: none;
-      padding: 0;
       text-align: center;
       text-transform: uppercase;
       vertical-align: middle;
@@ -111,7 +111,7 @@ nav {
         background-color: white;
       }
 
-      @include media($medium-screen) {
+      @include media(em(480)) {
         width: 18em;
       }
     }
