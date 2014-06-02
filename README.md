@@ -26,8 +26,10 @@ Tutorials
 Installation
 ------------
 
-1. Add `griddler` and an [adapter](#adapters) gem to your application's Gemfile
+1. Add `griddler` and an [adapter] gem to your application's Gemfile
    and run `bundle install`.
+
+   [adapter]: #adapters
 
 2. A route is needed for the endpoint which receives `POST` messages. To add the
    route, in `config/routes.rb` you may either use the provided routing method
@@ -73,7 +75,7 @@ end
 | `processor_class`  | The class Griddler will use to handle your incoming emails. |
 | `processor_method` | The method Griddler will call on the processor class when handling your incoming emails. |
 | `reply_delimiter`  | The string searched for that will split your body. |
-| `email_service`    | Tells Griddler which email service you are using. The supported email service options are `:sendgrid` (the default), `:cloudmailin` (expects multipart format), `:postmark` and `:mandrill`. You will also need to have an appropriate [adapter](#adapters) gem included in your Gemfile. |
+| `email_service`    | Tells Griddler which email service you are using. The supported email service options are `:sendgrid` (the default), `:cloudmailin` (expects multipart format), `:postmark` and `:mandrill`. You will also need to have an appropriate [adapter] gem included in your Gemfile. |
 | `to`, `config.cc` and `config.from` | The format of the returned value for that address in the email object. `:hash` will return all options within a -- (surprise!) -- hash. |
 
 By default Griddler will look for a class named `EmailProcessor` with a class
