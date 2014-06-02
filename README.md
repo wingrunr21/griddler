@@ -211,7 +211,7 @@ Griddler was written by Caleb Thompson and Joel Oliveira.
 Large portions of the codebase were extracted from thoughtbot's
 [Trajectory](http://www.apptrajectory.com).
 
-Thanks to our [contributors](/contributors)
+Thanks to our [contributors](https://github.com/thoughtbot/griddler/contributors)
 
 ![thoughtbot](http://thoughtbot.com/images/tm/logo.png)
 
