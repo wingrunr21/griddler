@@ -153,7 +153,7 @@ Bear in mind, if you plan on using the `:with_attachment` trait, that this
 example assumes your factories are in `spec/factories.rb` and you have
 an image file in `spec/fixtures/`.
 
-To use it in your test(s), build with `email = build(:email)`
+To use it in your tests, build with `email = build(:email)`
 or `email = build(:email, :with_attachment)`.
 
 Adapters
