@@ -6,7 +6,7 @@ Griddler
 
 ### Receive emails in your Rails app
 
-Griddler is a Rails engine (full plugin) that provides an endpoint for the
+Griddler is a Rails engine that provides an endpoint for the
 [SendGrid](http://sendgrid.com/docs/API%20Reference/Webhooks/parse.html),
 [Cloudmailin](http://cloudmailin.com),
 [Postmark](http://developer.postmarkapp.com/developer-inbound-parse.html),
