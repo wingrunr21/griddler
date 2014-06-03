@@ -36,9 +36,9 @@ Installation
    `mount_griddler` or set the route explicitly. Examples:
 
    ```ruby
-   # somewhere in config/routes.rb
+   # config/routes.rb
 
-   # mount using default path
+   # mount using default path: /email_processor
    mount_griddler
 
    # mount using a custom path
@@ -56,8 +56,8 @@ Defaults are shown below with sample overrides following. In
 
 ```ruby
 Griddler.configure do |config|
-  config.processor_class = EmailProcessor # MyEmailProcessor
-  config.processor_method = :process # :custom_method
+  config.processor_class = EmailProcessor # CommentViaEmail
+  config.processor_method = :process # :create_comment (A method on CommentViaEmail)
   config.to = :hash # :full, :email, :token
   config.cc = :email # :full, :hash, :token
   config.from = :email # :full, :token, :hash
@@ -70,13 +70,13 @@ Griddler.configure do |config|
 end
 ```
 
-| Option             | Meaning |
-| ------             | ------- |
-| `processor_class`  | The class Griddler will use to handle your incoming emails. |
-| `processor_method` | The method Griddler will call on the processor class when handling your incoming emails. |
-| `reply_delimiter`  | The string searched for that will split your body. |
-| `email_service`    | Tells Griddler which email service you are using. The supported email service options are `:sendgrid` (the default), `:cloudmailin` (expects multipart format), `:postmark` and `:mandrill`. You will also need to have an appropriate [adapter] gem included in your Gemfile. |
-| `to`, `config.cc` and `config.from` | The format of the returned value for that address in the email object. `:hash` will return all options within a -- (surprise!) -- hash. |
+| Option             | Meaning
+| ------             | -------
+| `processor_class`  | The class Griddler will use to handle your incoming emails.
+| `processor_method` | The method Griddler will call on the processor class when handling your incoming emails.
+| `reply_delimiter`  | The string searched for that will split your body.
+| `email_service`    | Tells Griddler which email service you are using. The supported email service options are `:sendgrid` (the default), `:cloudmailin` (expects multipart format), `:postmark` and `:mandrill`. You will also need to have an appropriate [adapter] gem included in your Gemfile.
+| `to`, `config.cc` and `config.from` | The format of the returned value for that address in the email object. `:hash` will return all options within a -- (surprise!) -- hash.
 
 By default Griddler will look for a class named `EmailProcessor` with a class
 method named `process`, taking in one argument, a `Griddler::Email` instance
@@ -94,32 +94,32 @@ end
 Griddler::Email attributes
 --------------------------
 
-| Attribute      | Description |
-| -------------- | ----------- |
-| `#to`          | An array of hashes containing recipient address information.  See [Email Addresses](#email-addresses) for more information. |
+| Attribute      | Description
+| -------------- | -----------
+| `#to`          | An array of hashes containing recipient address information.  See [Email Addresses](#email-addresses) for more information.
 | `#from`        | A hash containing the sender address information.
 | `#cc`          | An array of hashes containing cc email address information.
 | `#subject`     | The subject of the email message.
-| `#body`        | The full contents of the email body **unless** there is a line in the email containing the string `-- Reply ABOVE THIS LINE --`. In that case `.body` will contain everything before that line. |
-| `#raw_text`    | The raw text part of the body. |
-| `#raw_html`    | The raw html part of the body. |
-| `#raw_body`    | The raw body information provided by the email service. |
-| `#attachments` | An array of `File` objects containing any attachments. |
-| `#headers`     | A hash of headers parsed by `Mail::Header`. |
-| `#raw_headers` | The raw headers included in the message. |
+| `#body`        | The full contents of the email body **unless** there is a line in the email containing the string `-- Reply ABOVE THIS LINE --`. In that case `.body` will contain everything before that line.
+| `#raw_text`    | The raw text part of the body.
+| `#raw_html`    | The raw html part of the body.
+| `#raw_body`    | The raw body information provided by the email service.
+| `#attachments` | An array of `File` objects containing any attachments.
+| `#headers`     | A hash of headers parsed by `Mail::Header`.
+| `#raw_headers` | The raw headers included in the message.
 
 ### Email Addresses
 
 Gridder::Email provides email addresses as hashes. Each hash will have the following
 information of each recipient:
 
-| Key | Value |
-| --- | ----- |
-| `:token` | All the text before the email's "@". We've found that this is the most often used portion of the email address and consider it to be the token we'll key off of for interaction with our application. |
-| `:host` | All the text after the email's "@". This is important to filter the recipients sent to the application vs emails to other domains. More info below on the Upgrading to 0.5.0 section. |
-| `:email` | The email address of the recipient. |
-| `:full` | The whole recipient field. E.g, `Some User <hello@example.com>` |
-| `:name` | The name of the recipient. E.g, `Some User` |
+| Key | Value
+| --- | -----
+| `:token` | All the text before the email's "@". We've found that this is the most often used portion of the email address and consider it to be the token we'll key off of for interaction with our application.
+| `:host` | All the text after the email's "@". This is important to filter the recipients sent to the application vs emails to other domains. More info below on the Upgrading to 0.5.0 section.
+| `:email` | The email address of the recipient.
+| `:full` | The whole recipient field (e.g., `Some User <hello@example.com>`).
+| `:name` | The name of the recipient (e.g., `Some User`).
 
 Testing In Your App
 -------------------
@@ -159,29 +159,35 @@ or `email = build(:email, :with_attachment)`.
 Adapters
 --------
 
-| Service     | Adapter |
-| -------     | ------- |
-| sendgrid    | [griddler-sendgrid] |
+Depending on the service you want to use Griddler with, you'll need to add an
+adapter gem in addition to `griddler`.
+
+| Service     | Adapter
+| -------     | -------
+| sendgrid    | [griddler-sendgrid]
 
 [griddler-sendgrid]: https://github.com/thoughtbot/griddler-sendgrid
 
 Writing an Adapter
 ------------------
 
+Griddler can theoretically work with any email => POST service. In order to work
+correctly, adapters need to have their POST parameters restructured.
+
 `Griddler::Email` expects certain parameters to be in place for proper parsing
 to occur. When writing an adapter, ensure that the `normalized_params` method of
 your adapter returns a hash with these keys:
 
-| Parameter      | Contents |
-| ---------      | -------- |
-| `:to`          | The recipient field |
-| `:from`        | The sender field |
-| `:subject`     | Email subject |
-| `:text`        | The text body of the email |
-| `:html`        | The html body of the email, nil or empty string if not present |
-| `:attachments` | Array of attachments to the email. Can be an empty array. |
-| `:headers`     | The raw headers of the email. Optional. |
-| `:charsets`    | A JSON string containing the character sets of the fields extracted from the message. Optional. |
+| Parameter      | Contents
+| ---------      | --------
+| `:to`          | The recipient field
+| `:from`        | The sender field
+| `:subject`     | Email subject
+| `:text`        | The text body of the email
+| `:html`        | The html body of the email, nil or empty string if not present
+| `:attachments` | Array of attachments to the email. Can be an empty array.
+| `:headers`     | The raw headers of the email. **Optional**.
+| `:charsets`    | A JSON string containing the character sets of the fields extracted from the message. **Optional**.
 
 All keys are required unless otherwise stated.
 
@@ -211,7 +217,7 @@ Griddler was written by Caleb Thompson and Joel Oliveira.
 Large portions of the codebase were extracted from thoughtbot's
 [Trajectory](http://www.apptrajectory.com).
 
-Thanks to our [contributors](https://github.com/thoughtbot/griddler/contributors)
+Thanks to our [contributors](https://github.com/thoughtbot/griddler/contributors)!
 
 ![thoughtbot](http://thoughtbot.com/images/tm/logo.png)
 
